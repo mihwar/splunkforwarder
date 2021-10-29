@@ -1,0 +1,32 @@
+#localhost ansible_host=127.0.0.1 ansible_connection=local
+#arch-work ansible_host=192.168.0.51 ansible_ssh_user=dubrovnyi
+
+[host_test_sv]
+#webapp-acs.cardpay-test.com
+#webapp-fe.cardpay-test.com
+#weblogic-admin.cardpay-test.com
+#webapp-fraudcore.cardpay-test.com
+#webapp-fraudui.cardpay-test.com
+#webapp-apigate.cardpay-test.com
+#webapp-acs2.cardpay-test.com
+#3dsapp-test.cardpay-test.com
+#webapp-bus.cardpay-test.com
+#webapp-smsgate.cardpay-test.com
+#zabbix.cardpay-test.com
+#appl2-nsk.cardpay-test.com
+#172.21.32.220
+#192.168.0.250
+[office]
+#wlapi-test.cardpay-test.com
+#svrm.cardpay-test.com
+[db]
+db.cardpay-test.com
+#db-nsk-test2.cardpay-test.com
+#db-nsk-test2-dwh.cardpay-test.com
+#db-master.psp.cardpay-aws.net
+#db-master-dwh.psp.cardpay-aws.net
+#db-cy-test-dwh.localdomain
+#db-sandbox.cardpay.com
+#db-cy-sandbox-dwh.cardpay-test.com
+#db-cy-preprod-dwh.cardpay-test.com
+

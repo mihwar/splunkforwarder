@@ -1,0 +1,16 @@
+[default]
+host = {{ inventory_hostname }}
+
+[monitor://$SPLUNK_HOME/var/log/splunk]
+index = _internal
+disabled = true
+
+[monitor://$SPLUNK_HOME/var/log/watchdog/watchdog.log*]
+index = _internal
+disabled = true
+
+[monitor://$SPLUNK_HOME/var/log/splunk/*.log]
+index = _internal
+
+[monitor://$SPLUNK_HOME/var/log/splunk/watchdog.log]
+index = _internal

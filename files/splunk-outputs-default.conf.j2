@@ -1,0 +1,15 @@
+useACK=true
+readTimeout=900
+writeTimeout=900
+
+[tcpout]
+defaultGroup = default-autolb-group
+
+[tcpout:default-autolb-group]
+server = splunk.cardpay-test.com:9997
+compressed = true
+
+[tcpout-server://splunk.cardpay-test.com:9997]
+sslRootCAPath = /etc/pki/tls/certs/wildcard.cardpay-test.com.cert_plus_chain.crt
+sslCertPath = /etc/pki/tls/certs/wildcard.cardpay-test.com.cert_plus_chain.crt
+sslVerifyServerCert = true

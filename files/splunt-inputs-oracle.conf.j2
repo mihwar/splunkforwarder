@@ -1,0 +1,13 @@
+[monitor:///var/log/oracle/db_patches/*/*.log]
+disabled = false
+index = db-logs
+host = {{ inventory_hostname }}
+sourcetype = PSPDB
+crcSalt = <SOURCE>
+
+[monitor:///var/log/oracle/direct/*.log]
+disabled = false
+index = db-events
+host = {{ inventory_hostname }}
+sourcetype = PSPDB
+crcSalt = <SOURCE>

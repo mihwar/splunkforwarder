@@ -1,0 +1,91 @@
+---
+- hosts: db
+  become: true
+  vars:
+
+  handlers:
+
+  - name: "yum-clean-metadata"
+    command: yum clean metadata
+    args:
+      warn: no
+
+  - name: "Restart splunkforwarder"
+    ansible.builtin.service:
+      name: splunk
+      state: reloaded
+
+  pre_tasks:
+
+  - name: "Copy gpgkey for ipsp-test system repo"
+    ansible.builtin.copy:
+      src: files/RPM-GPG-KEY-CARDPAY
+      dest: /etc/pki/rpm-gpg/RPM-GPG-KEY-CARDPAY
+      owner: root
+      group: root
+      mode: "0600"
+
+  - name: "Check ipsp-test-system repo is installed"
+    ansible.builtin.yum_repository:
+      name: ipsp-test-system
+      description: ipsp-test system packages for CentOS 7
+      file: /etc/yum.repos.d/ipsp-test.repo
+      baseurl: https://repo.cardpay-test.com/ipsp-test-system/
+      gpgkey: file:///etc/pki/rpm-gpg/RPM-GPG-KEY-CARDPAY
+      gpgcheck: yes
+      enabled: yes
+    #notify: yum-clean-metadata
+
+  tasks:
+
+  - name: "Install splunkforwarder"
+    ansible.builtin.yum:
+      name: splunkforwarder
+      state: present
+      enablerepo: ipsp-test-system
+      update_cache: yes
+    notify: "Restart splunkforwarder"
+
+
+  - name: "Configure splunkforwarder - copy splunk ssl cert"
+    ansible.builtin.copy:
+      src: files/splunk-ssl.cert
+      dest: /etc/pki/tls/certs/wildcard.cardpay-test.com.cert_plus_chain.crt
+    notify: "Restart splunkforwarder"
+
+  - name: "Configure splunkforwarder - copy outputs-system.conf"
+    ansible.builtin.template:
+      src: files/splunk-outputs-default.conf.j2
+      dest: /opt/splunkforwarder/etc/system/local/outputs.conf
+      owner: splunk
+      group: splunk
+    notify: "Restart splunkforwarder"
+
+  - name: "Configure splunkforwarder - copy inputs-system.conf"
+    ansible.builtin.template:
+      src: files/splunk-inputs-default.conf.j2
+      dest: /opt/splunkforwarder/etc/system/local/inputs.conf
+      owner: splunk
+      group: splunk
+    notify: "Restart splunkforwarder"
+
+  - name: "Check ../apps/search/local directory exists"
+    ansible.builtin.file:
+      path: /opt/splunkforwarder/etc/apps/search/local
+      state: directory
+      owner: splunk
+      group: splunk
+
+  - name: "Configure splunkforwarder - copy inputs-oracle.conf"
+    ansible.builtin.template:
+      src: files/splunt-inputs-oracle.conf.j2
+      dest: /opt/splunkforwarder/etc/apps/search/local/inputs.conf
+      owner: splunk
+      group: splunk
+    notify: "Restart splunkforwarder"
+
+  - name: "Configure splunkforwarder - copy props-oracle.conf"
+    ansible.builtin.copy:
+      src: files/splunk-props-oracle.conf
+      dest: /opt/splunkforwarder/etc/apps/search/local/props.conf
+    notify: "Restart splunkforwarder"
