@@ -44,8 +44,11 @@
       state: present
       enablerepo: ipsp-test-system
       update_cache: yes
+    register: isInstalledSplunk
     notify: "Restart splunkforwarder"
 
+  - name: "Show Splunk installation result"
+    debug: var=isInstalledSplunk.stdout_lines
 
   - name: "Configure splunkforwarder - copy splunk ssl cert"
     ansible.builtin.copy:
@@ -89,3 +92,48 @@
       src: files/splunk-props-oracle.conf
       dest: /opt/splunkforwarder/etc/apps/search/local/props.conf
     notify: "Restart splunkforwarder"
+
+    # ================================
+
+  - name: "create a random password"
+    ansible.builtin.shell: date +%s | sha256sum | base64 | head -c 32 ; echo
+    register: _splunk_password
+    changed_when: false
+#    when: isInstalledSplunk.changed
+
+  - name: "Show new password"
+    debug: var=_splunk_password.stdout
+
+  - name: "hash the random password"
+    ansible.builtin.command:
+      argv:
+        - /opt/splunkforwarder/bin/splunk
+        - "hash-passwd"
+        - "{{ _splunk_password.stdout }}"
+    register: _splunk_hashed_password
+    changed_when: false
+#    when: isInstalledSplunk.changed
+
+  - name: "Show password hash"
+    debug: var=_splunk_hashed_password.stdout
+
+  - name: "Create the user-seed config file"
+    ansible.builtin.template:
+      src: files/user-seed.conf.j2
+      dest: /opt/splunkforwarder/etc/system/local/user-seed.conf
+      owner: root
+      group: root
+      mode: 0640
+    become: yes
+ #   when: isInstalledSplunk.changed
+
+  - name: "Accept the license"
+    ansible.builtin.shell:
+      argv:
+        - /opt/splunkforwarder/bin/splunk
+        - start
+        - "--accept-license"
+        - "--answer-yes"
+        - "--no-prompt"
+    become: yes
+#    when: isInstalledSplunk.changed
